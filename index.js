@@ -1,15 +1,9 @@
 const http=require("http")
-const express=require("express")
+const app=require("./src/config/express.config")
 
-const app=express()
-app.get('/',(req,res)=>{
-    res.json(
-        "<h1>Hello world!!</h1>"
-    )
-}
-)
 
-const server=http.createServer(app)
+
+const server=http.createServer(app);
 
 
 server.listen(3010,"localhost",(err)=>{
