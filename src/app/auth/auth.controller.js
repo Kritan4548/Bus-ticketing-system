@@ -1,7 +1,12 @@
+const dotenv=require('dotenv')
+dotenv.config()
 const {z}=require("zod");
 const { generateRandomString } = require("../../config/helpers");
+const mailSvc = require('../../services/mail.service');
+const authSvc = require('./auth.service');
+
 class AuthController{
-register=(req,res,next)=>{
+register=async(req,res,next)=>{
   
     try{
        let payload=req.body;
@@ -18,6 +23,13 @@ register=(req,res,next)=>{
        payload.token=generateRandomString();
 
        //Mail,Otp
+      let mailMsg=authSvc.registerEmailMessage(payload.name,payload.token)
+     const mailAck= await mailSvc.emailSend(
+        payload.email,
+        "Please activate your account!",
+        mailMsg
+      )
+      console.log(mailAck)
         res.json({
             result:payload
             // messagge:"You are registered",
@@ -31,16 +43,28 @@ register=(req,res,next)=>{
 verifyToken=(req,res,next)=>{
   
     try{
-      
+      let token=req.params.token;
+      if(token){
+        res.json({
+            result:{},
+            msg:"Valid token",
+            meta:null
+        })
+      }else{
+        next({code:400,message:"Invalid or expired token"})
+      }
     }catch(except){
         next(except)
     }
    
 }
-setPassword=(req,res,next)=>{
+ setPassword=async (req,res,next)=>{
   
     try{
-    
+        let data=req.body
+       res.json({
+        result:data
+       })
     }catch(except){
         next(except)
     }
