@@ -1,29 +1,16 @@
 const authCtrl = require("./auth.controller")
 
 const router=require("express").Router()
+const uploader=require("../../middlewares/uploader.middleware")
+const ValidateRequest = require("../../middlewares/validate-request.middleware")
+const { registerSchmea } = require("./auth.validator")
 
-const multer=require('multer')
-const fs=require("fs")
-const myStorage=multer.diskStorage({
-    destination:(req,file,cb)=>{
-        let path="./public/uploads/user"
-         if(!fs.existsSync(path)){
-            fs.mkdirSync(path,{recursive:true})
-        }
-        cb(null,path)
-    },
-    filename:(req,file,cb) =>{
-        let random=Math.round(Math.random() * 9999)
-        let ext=(file.originalname.split(".")).pop()
-        let filename=Date.now()+"-"+random+"."+ext
-        cb(null,filename)
-    }
-});
-const uploader=multer({
-    storage:myStorage
-})
+const dirSetup=(req,res,next)=>{
+    req.uploadDir ="./public/uploads/users"
+    next()
+}
 
-router.post('/register',uploader.array('image'),authCtrl.register)
+router.post('/register',dirSetup,uploader.array('image'),ValidateRequest(registerSchmea),authCtrl.register)
 router.get('/verifytoken',authCtrl.verifyToken)
 router.post('/set-password/:token',authCtrl.setPassword)
 router.post('/login',authCtrl.login)

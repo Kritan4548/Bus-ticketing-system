@@ -1,9 +1,12 @@
+const {z}=require("zod");
+const { generateRandomString } = require("../../config/helpers");
 class AuthController{
 register=(req,res,next)=>{
   
     try{
        let payload=req.body;
 
+      
        //file
     
        if(req.file){
@@ -11,6 +14,10 @@ register=(req,res,next)=>{
        }else if(req.files){
         payload.image=req.files.map((item)=>item.filename)
        }
+       payload.status="inactive";
+       payload.token=generateRandomString();
+
+       //Mail,Otp
         res.json({
             result:payload
             // messagge:"You are registered",
